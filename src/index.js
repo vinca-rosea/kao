@@ -3,6 +3,7 @@ import '../node_modules/milligram/dist/milligram.min.css';
 import './style.css';
 import kao from 'kaomojilib';
 import kaocsv from '../node_modules/kao.moji/data/kaomoji.json';
+import kaodata from "./kaomoji";
 
 const HISTORY_SIZE = 50;
 
@@ -40,14 +41,17 @@ const copy = (str) => {
   textarea.parentNode.removeChild(textarea);
 }
 
-const button = (icon) => {
+const button = (icon, onClickFunction ,classList) => {
   const button = document.createElement('button');
   button.textContent = icon;
   button.value = icon;
-  button.classList.add('button', 'button-outline');
-  button.addEventListener('click', onClick, false);
+  button.classList.add(...classList);
+  button.addEventListener('click', onClickFunction, false);
   return button;
 };
+
+const normalButtonClass = ['button', 'button-outline'];
+const utilityButtonClass = ['button','button-utility'];
 
 let history = localStorage.getItem('history');
 if (history != null) {
@@ -55,6 +59,14 @@ if (history != null) {
 } else {
   history = [];
 }
+
+let userIcon = localStorage.getItem('userIcon');
+if (userIcon != null) {
+  userIcon = JSON.parse(userIcon);
+} else {
+  userIcon = [];
+}
+
 const saveHistory = (history) => {
   localStorage.setItem('history', JSON.stringify(history));
 };
@@ -65,21 +77,40 @@ const drawHistory = () => {
     historyElm.removeChild(historyElm.firstChild);
   }
   history.forEach(h => {
-    historyElm.appendChild(button(h));
+    historyElm.appendChild(button(h, onClick, normalButtonClass));
   });
 };
 
 drawHistory(history);
 
 const main = document.querySelector('#main');
+
+const addIcon = (e) => {
+  const kaomoji = prompt('input kaomoji.'); 
+  let newUserIcon = userIcon.filter(v => v != kaomoji);
+  newUserIcon.unshift(kaomoji);
+  userIcon = newUserIcon;
+  localStorage.setItem('userIcon', JSON.stringify(userIcon));
+  location.reload();
+};
+
+main.appendChild(button('⊞ ADD', addIcon, utilityButtonClass));
+
+userIcon.forEach(i => {
+  main.appendChild(button(i, onClick, normalButtonClass));
+});
+
+kaodata.forEach(k => {
+    main.appendChild(button(k, onClick, normalButtonClass));
+});
+
 Object.values(kaocsv).forEach(k => {
   k.forEach(i => {
-    main.appendChild(button(i));
+    main.appendChild(button(i, onClick, normalButtonClass));
   });
 });
 
 Object.entries(kao.library).forEach(([text, content]) => {
-  main.appendChild(button(content.icon));
+  main.appendChild(button(content.icon, onClick, normalButtonClass));
 });
-
 
