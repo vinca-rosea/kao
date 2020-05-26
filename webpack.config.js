@@ -1,7 +1,7 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  mode: 'production',
+  mode: 'development',
   entry: './src/index.js',
   output: {
     path: __dirname,
@@ -18,6 +18,7 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }]
+        , exclude: /node_modules/,
       },
       {
         test: /\.pug$/,
@@ -37,7 +38,8 @@ module.exports = {
             options: { url: false }
           }
         ]
-      }
+      },
+      { test: /\.json$/, use: ['json-loader'], exclude: /node_modules/, },
     ]
   },
   plugins: [
